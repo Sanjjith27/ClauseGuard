@@ -26,6 +26,7 @@ import {
   Lightbulb,
   Loader2,
   Mail,
+  Plus,
   Search,
   Shield,
   ShieldAlert,
@@ -188,6 +189,7 @@ const Sidebar: React.FC<{
   history: ScanHistoryEntry[];
   onHistory: (entry: ScanHistoryEntry) => void;
   onLanding: () => void;
+  onNewDocument: () => void;
 }> = ({
   collapsed,
   onToggle,
@@ -199,6 +201,7 @@ const Sidebar: React.FC<{
   history,
   onHistory,
   onLanding,
+  onNewDocument,
 }) => (
   <aside
     className={cn(
@@ -231,6 +234,20 @@ const Sidebar: React.FC<{
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
+
+      {/* Always-available reset: start a fresh document even if a sample is loaded */}
+      <button
+        type="button"
+        onClick={onNewDocument}
+        title="+ New Document (clear text, sample and analysis)"
+        className={cn(
+          "mt-5 flex w-full items-center gap-3 rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-3 text-sm font-bold text-cyan-200 transition-colors hover:border-cyan-300 hover:bg-cyan-400/20",
+          collapsed && "justify-center px-0",
+        )}
+      >
+        <Plus className="h-5 w-5 shrink-0" />
+        {!collapsed && <span className="truncate">+ New Document</span>}
+      </button>
 
       {/* Section navigation */}
       <nav className="mt-6 space-y-2">
@@ -580,7 +597,8 @@ const DocumentInput: React.FC<{
   onScan: () => void;
   loading: boolean;
   pdfProgress: number | null;
-}> = ({ text, onTextChange, onFile, onScan, loading, pdfProgress }) => {
+  textareaRef: React.RefObject<HTMLTextAreaElement>;
+}> = ({ text, onTextChange, onFile, onScan, loading, pdfProgress, textareaRef }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
@@ -646,6 +664,7 @@ const DocumentInput: React.FC<{
           Or paste raw contract text
         </label>
         <textarea
+          ref={textareaRef}
           id="contract-text"
           rows={10}
           value={text}
@@ -1241,6 +1260,7 @@ interface ConsoleProps {
   onScan: () => void;
   onHistory: (entry: ScanHistoryEntry) => void;
   onLanding: () => void;
+  onNewDocument: () => void;
   onCapyClick: () => void;
 }
 
@@ -1270,9 +1290,12 @@ const Console: React.FC<ConsoleProps> = ({
   onScan,
   onHistory,
   onLanding,
+  onNewDocument,
   onCapyClick,
 }) => {
   const [activeSection, setActiveSection] = useState<Section>("xray");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [focusToken, setFocusToken] = useState(0);
   const fairnessScore = result?.fairness_score ?? 100;
   const clauses = result?.clauses ?? [];
   const selectedClause = selectedClauseIdx === null ? null : clauses[selectedClauseIdx] ?? null;
@@ -1293,6 +1316,19 @@ const Console: React.FC<ConsoleProps> = ({
     [onHistory],
   );
 
+  /** Clears parent-owned analysis state, returns to X-Ray, then focuses the input. */
+  const handleNewDocument = useCallback(() => {
+    onNewDocument();
+    setActiveSection("xray");
+    setFocusToken((token) => token + 1);
+  }, [onNewDocument]);
+
+  useEffect(() => {
+    if (focusToken === 0) return;
+    const frame = requestAnimationFrame(() => textareaRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [focusToken]);
+
   return (
     <div className="flex min-h-screen bg-[#020e21] text-slate-100">
       <Sidebar
@@ -1306,6 +1342,7 @@ const Console: React.FC<ConsoleProps> = ({
         history={history}
         onHistory={chooseHistory}
         onLanding={onLanding}
+        onNewDocument={handleNewDocument}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -1325,12 +1362,23 @@ const Console: React.FC<ConsoleProps> = ({
           {activeSection === "xray" && (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
               <section className="space-y-5 rounded-2xl border border-slate-800 bg-[#041329] p-6 lg:p-8">
-                <div className="space-y-1.5">
-                  <h2 className="text-lg font-bold text-white">Document Intake</h2>
-                  <p className="text-sm leading-relaxed text-slate-400">
-                    Give ClauseGuard a PDF or paste the fine print. Your files never
-                    leave the browser.
-                  </p>
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="space-y-1.5">
+                    <h2 className="text-lg font-bold text-white">Document Intake</h2>
+                    <p className="text-sm leading-relaxed text-slate-400">
+                      Give ClauseGuard a PDF or paste the fine print. Your files never
+                      leave the browser.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleNewDocument}
+                    title="Clear all text, sample selection and analysis"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-3 py-2 text-xs font-bold text-cyan-200 transition-colors hover:border-cyan-300 hover:bg-cyan-400/20"
+                  >
+                    <Plus className="h-4 w-4" />
+                    + New Document
+                  </button>
                 </div>
                 <DocumentInput
                   text={text}
@@ -1342,6 +1390,7 @@ const Console: React.FC<ConsoleProps> = ({
                   }}
                   loading={loading}
                   pdfProgress={pdfProgress}
+                  textareaRef={textareaRef}
                 />
               </section>
 

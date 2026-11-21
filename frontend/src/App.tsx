@@ -93,6 +93,7 @@ const App: React.FC = () => {
   const [engineStatus, setEngineStatus] = useState<EngineStatus>("checking");
   const [pdfProgress, setPdfProgress] = useState<number | null>(null);
   const [activeSample, setActiveSample] = useState<SampleKey | null>(null);
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [history, setHistory] = useState<ScanHistoryEntry[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -173,6 +174,7 @@ const App: React.FC = () => {
     (key: SampleKey) => {
       const c = sampleContracts[key];
       setActiveSample(key);
+      setUploadedFileName(null);
       setContractName(c.name);
       setText(c.text);
       void runAnalysis(c.text, c.name);
@@ -191,6 +193,7 @@ const App: React.FC = () => {
       }
 
       setActiveSample(null);
+      setUploadedFileName(file.name);
       setLoading(true);
       setScanning(true);
       setPdfProgress(0);
@@ -265,6 +268,22 @@ const App: React.FC = () => {
     setContractName(entry.name);
     setResult(entry.result);
     setActiveSample(null);
+    setUploadedFileName(null);
+  }, []);
+
+  /** Fresh input: clear text, sample lock, upload name and every derived result. */
+  const handleNewDocument = useCallback(() => {
+    setText("");
+    setContractName("Pasted Contract");
+    setResult(null);
+    setLoading(false);
+    setScanning(false);
+    setPdfProgress(null);
+    setActiveSample(null);
+    setUploadedFileName(null);
+    setSelectedClauseIdx(null);
+    setEmailDraft("");
+    setVendorEmail("");
   }, []);
 
   const handleCapyClick = useCallback(() => {
@@ -291,7 +310,17 @@ const App: React.FC = () => {
     text,
     setText: (t: string) => {
       setText(t);
-      setActiveSample(null);
+      // Manual typing/pasting always overrides a loaded sample or upload and
+      // invalidates analysis derived from the previous document.
+      if (activeSample || uploadedFileName) {
+        setActiveSample(null);
+        setUploadedFileName(null);
+        setContractName("Custom Uploaded Document");
+      }
+      setResult(null);
+      setSelectedClauseIdx(null);
+      setEmailDraft("");
+      setVendorEmail("");
     },
     contractName,
     result,
@@ -316,6 +345,7 @@ const App: React.FC = () => {
     onScan: handleScan,
     onHistory: restoreHistory,
     onLanding: goLanding,
+    onNewDocument: handleNewDocument,
     onCapyClick: handleCapyClick,
   };
 
