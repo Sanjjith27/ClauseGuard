@@ -1,0 +1,24 @@
+# ClauseGuard Backend — Python Dependencies
+# ==========================================
+
+# Core web framework
+fastapi>=0.104.1
+
+# ASGI server
+uvicorn[standard]>=0.27.0
+
+# PDF text extraction
+PyMuPDF>=1.23.10
+
+# CORS middleware (FastAPI default)
+python-cors>=3.0.0
+
+# Optional: OpenAI integration (with fallback to deterministic detector)
+openai>=1.30.0
+google-genai>=0.3.0
+
+# Optional: PDF to image conversion (fallback)
+pdf2image>=1.16.3
+
+# Type checking (dev)
+mypy>=1.8.0

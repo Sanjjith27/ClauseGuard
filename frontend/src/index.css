@@ -1,0 +1,368 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Custom Properties - Dark-Navy Command-Center Aesthetic
+   ========================================================================== */
+:root {
+  --bg-primary: #020e21;
+  --bg-elevated: #041329;
+  --bg-card: #0a1a2e;
+  --border-subtle: #1e293b;
+  --fg-primary: #f8fafc;
+  --fg-muted: #94a3b8;
+  --primary: #35d7e8;
+  --primary-dark: #0d94a1;
+  --risk-high: #f43f5e;
+  --risk-medium: #f59e0b;
+  --risk-low: #10b981;
+  --amber: #f59e0b;
+  --emerald: #10b981;
+}
+
+/* ==========================================================================
+   Scrollbar Styles
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* ==========================================================================
+   Focus Styles
+   ========================================================================== */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Selection Background
+   ========================================================================== */
+::selection {
+  background: var(--primary);
+  color: var(--bg-primary);
+}
+
+/* ==========================================================================
+   Landing page - GPU-accelerated atmosphere + interactions
+   All motion uses transform/opacity only (compositor-friendly).
+   ========================================================================== */
+.cg-landing {
+  isolation: isolate;
+}
+
+.cg-grid-bg {
+  background-image:
+    linear-gradient(rgba(53, 215, 232, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(53, 215, 232, 0.055) 1px, transparent 1px),
+    radial-gradient(circle at 50% 12%, rgba(53, 215, 232, 0.16), transparent 46%);
+  background-size:
+    56px 56px,
+    56px 56px,
+    100% 100%;
+  animation: cg-grid-drift 22s linear infinite;
+  will-change: background-position;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 25%, #000 35%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 25%, #000 35%, transparent 100%);
+}
+
+.cg-glow {
+  background:
+    radial-gradient(ellipse 34% 26% at 12% 22%, rgba(13, 148, 161, 0.16), transparent 70%),
+    radial-gradient(ellipse 32% 24% at 88% 62%, rgba(244, 63, 94, 0.1), transparent 70%);
+  animation: cg-glow-pulse 9s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+
+.cg-sticky {
+  box-shadow: 0 8px 30px -20px rgba(53, 215, 232, 0.4);
+}
+
+.cg-gradient-text {
+  background: linear-gradient(92deg, #35d7e8 0%, #7dd3fc 45%, #f43f5e 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.cg-glass {
+  background: linear-gradient(150deg, rgba(4, 19, 41, 0.88), rgba(2, 14, 33, 0.72));
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* X-Ray laser sweeping across a preview card */
+.cg-scanline {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(53, 215, 232, 0.02) 35%,
+    rgba(53, 215, 232, 0.16) 82%,
+    rgba(190, 252, 255, 0.85) 100%
+  );
+  box-shadow: 0 12px 34px -6px rgba(53, 215, 232, 0.45);
+  opacity: 0.85;
+  animation: cg-sweep 4.8s cubic-bezier(0.45, 0, 0.3, 1) infinite;
+  will-change: transform;
+}
+
+.cg-ring-progress {
+  transition: stroke-dashoffset 750ms cubic-bezier(0.22, 1, 0.36, 1), stroke 400ms ease;
+}
+
+.cg-trap-on {
+  animation: cg-trap-pulse 2.6s ease-in-out infinite;
+}
+
+.cg-band {
+  transform-origin: 114px 70px;
+  animation: cg-flag-sway 3.2s ease-in-out infinite;
+}
+
+.cg-flag {
+  transform-origin: 114px 21px;
+  animation: cg-flag-flap 1.4s ease-in-out infinite;
+}
+
+.cg-float {
+  animation: cg-float 4s ease-in-out infinite;
+}
+
+.cg-progress {
+  background: linear-gradient(90deg, #0d94a1, #35d7e8, #a5f3fc);
+  background-size: 200% 100%;
+  animation: cg-shimmer 2.4s linear infinite;
+}
+
+.cg-seg-on {
+  box-shadow: 0 0 8px rgba(53, 215, 232, 0.55);
+}
+
+/* Live engine telemetry dot (emerald when online, cyan when standalone) */
+.cg-engine-dot {
+  background: var(--dot-color, #10b981);
+  box-shadow: 0 0 0 0 var(--dot-glow, rgba(16, 185, 129, 0.55));
+  animation: cg-dot-pulse 1.9s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.cg-engine-dot.cyan {
+  --dot-color: #35d7e8;
+  --dot-glow: rgba(53, 215, 232, 0.55);
+}
+
+/* 350ms tactile scan feedback across the top of the X-Ray card */
+.cg-scan-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #35d7e8 25%,
+    #a5f3fc 50%,
+    #35d7e8 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  transform-origin: left center;
+  box-shadow: 0 0 14px 2px rgba(53, 215, 232, 0.55);
+  animation:
+    cg-scan-in 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    cg-scan-shimmer 350ms linear;
+  will-change: transform, background-position;
+}
+
+/* Exposure slider */
+.cg-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+}
+.cg-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e6feff;
+  border: 3px solid #35d7e8;
+  box-shadow: 0 0 12px rgba(53, 215, 232, 0.7);
+  transition: transform 180ms ease;
+}
+.cg-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.cg-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e6feff;
+  border: 3px solid #35d7e8;
+  box-shadow: 0 0 12px rgba(53, 215, 232, 0.7);
+}
+
+/* ==========================================================================
+   Keyframes
+   ========================================================================== */
+@keyframes cg-grid-drift {
+  0% {
+    background-position:
+      0 0,
+      0 0,
+      50% 12%;
+  }
+  100% {
+    background-position:
+      56px 56px,
+      56px 56px,
+      50% 12%;
+  }
+}
+
+@keyframes cg-glow-pulse {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cg-sweep {
+  0% {
+    transform: translate3d(0, -110%, 0);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.95;
+  }
+  82% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(0, 1600%, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes cg-trap-pulse {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 0 rgba(244, 63, 94, 0);
+  }
+  50% {
+    box-shadow: inset 0 0 18px 0 rgba(244, 63, 94, 0.16);
+  }
+}
+
+@keyframes cg-flag-sway {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes cg-flag-flap {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.86);
+  }
+}
+
+@keyframes cg-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+@keyframes cg-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes cg-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--dot-glow, rgba(16, 185, 129, 0.55));
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(0.82);
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+@keyframes cg-scan-in {
+  from {
+    transform: scaleX(0);
+    opacity: 0.3;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes cg-scan-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-grid-bg,
+  .cg-glow,
+  .cg-scanline,
+  .cg-trap-on,
+  .cg-band,
+  .cg-flag,
+  .cg-float,
+  .cg-progress,
+  .cg-engine-dot,
+  .cg-scan-bar {
+    animation: none !important;
+  }
+  .cg-scan-bar {
+    transform: scaleX(1);
+  }
+  .cg-ring-progress {
+    transition: none;
+  }
+}
